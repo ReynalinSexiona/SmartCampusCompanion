@@ -172,9 +172,12 @@ Integration of all components
 
 Final testing and project integration
 
+QA / Documenter Testing and documentation
+
+
 UI Developer – Campus Information
 
-Aljay Roasrios
+Aljay Roasario
 
 Responsibilities:
 
