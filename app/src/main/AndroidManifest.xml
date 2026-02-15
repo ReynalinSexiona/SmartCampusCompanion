@@ -12,6 +12,42 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartCampus">
         <activity
+            android:name=".ui.theme.Shape"
+            android:exported="false" />
+        <activity
+            android:name=".ui.theme.AnnouncementScreen"
+            android:exported="false" />
+        <activity
+            android:name=".ui.theme.TaskScreen"
+            android:exported="false" />
+        <activity
+            android:name=".ui.theme.AnnouncementViewModel"
+            android:exported="false" />
+        <activity
+            android:name=".ui.theme.TaskViewModel"
+            android:exported="false" />
+        <activity
+            android:name=".data.local.SmartCampusDatabase"
+            android:exported="false" />
+        <activity
+            android:name=".data.local.AnnouncementDao"
+            android:exported="false" />
+        <activity
+            android:name=".data.local.TaskDao"
+            android:exported="false" />
+        <activity
+            android:name=".data.local.AnnouncementEntity"
+            android:exported="false" />
+        <activity
+            android:name=".data.local.TaskEntity"
+            android:exported="false" />
+        <activity
+            android:name=".data.AnnouncementRepository"
+            android:exported="false" />
+        <activity
+            android:name=".data.TaskRepository"
+            android:exported="false" />
+        <activity
             android:name=".util.SessionManager"
             android:exported="false" />
         <activity
