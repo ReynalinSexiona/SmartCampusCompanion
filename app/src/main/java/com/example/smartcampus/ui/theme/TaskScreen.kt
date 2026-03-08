@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.smartcampus.ui.theme
 
 import android.app.DatePickerDialog
@@ -31,7 +33,6 @@ import java.util.*
 fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) {
 
     val tasks by viewModel.tasks.collectAsState()
-    val context = LocalContext.current
 
     var showEditDialog by remember { mutableStateOf(false) }
     var taskToEdit by remember { mutableStateOf<TaskEntity?>(null) }
@@ -55,12 +56,12 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
                 }
             )
         }
-    ) {
+    ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(gradientBackground)
-                .padding(it)
+                .padding(paddingValues)
         ) {
             Column(
                 modifier = Modifier
@@ -70,7 +71,7 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
 
                 OutlinedTextField(
                     value = title,
-                    onValueChange = { title = it },
+                    onValueChange = { newTitle -> title = newTitle },
                     label = { Text("Task Title") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.colors(
@@ -83,7 +84,7 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
 
                 OutlinedTextField(
                     value = description,
-                    onValueChange = { description = it },
+                    onValueChange = { newDesc -> description = newDesc },
                     label = { Text("Description") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.colors(
@@ -94,7 +95,7 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                DueDateSelector(dueDate = dueDate, onDueDateChange = { dueDate = it })
+                DueDateSelector(dueDate = dueDate, onDueDateChange = { selectedDate -> dueDate = selectedDate })
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -146,8 +147,8 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
         EditTaskDialog(
             task = taskToEdit!!,
             onDismiss = { showEditDialog = false },
-            onSave = {
-                viewModel.updateTask(it)
+            onSave = { updatedTask ->
+                viewModel.updateTask(updatedTask)
                 showEditDialog = false
             }
         )
@@ -212,7 +213,7 @@ fun DueDateSelector(dueDate: Long?, onDueDateChange: (Long?) -> Unit) {
 fun EditTaskDialog(task: TaskEntity, onDismiss: () -> Unit, onSave: (TaskEntity) -> Unit) {
     var title by remember { mutableStateOf(task.title) }
     var description by remember { mutableStateOf(task.description) }
-    var dueDate by remember { mutableStateOf(task.date) }
+    var dueDate by remember { mutableLongStateOf(task.date) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -239,7 +240,7 @@ fun EditTaskDialog(task: TaskEntity, onDismiss: () -> Unit, onSave: (TaskEntity)
                     )
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                DueDateSelector(dueDate = dueDate, onDueDateChange = { dueDate = it ?: task.date })
+                DueDateSelector(dueDate = dueDate, onDueDateChange = { selected -> dueDate = selected ?: task.date })
             }
         },
         confirmButton = {
