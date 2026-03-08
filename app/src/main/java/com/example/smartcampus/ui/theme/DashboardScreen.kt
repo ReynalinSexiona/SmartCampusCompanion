@@ -4,6 +4,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -92,8 +97,11 @@ fun DashboardScreen(navController: NavController) {
             Button(
                 onClick = { navController.navigate("campus") },
                 shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF4CAF50)),
                 modifier = Modifier.fillMaxWidth(0.7f)
             ) {
+                Icon(Icons.Default.School, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Campus Departments",
                     fontSize = 16.sp,
@@ -107,8 +115,11 @@ fun DashboardScreen(navController: NavController) {
             Button(
                 onClick = { navController.navigate("tasks") },
                 shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF4CAF50)),
                 modifier = Modifier.fillMaxWidth(0.7f)
             ) {
+                Icon(Icons.Default.Assignment, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Task and Schedule Manager",
                     fontSize = 16.sp,
@@ -122,8 +133,11 @@ fun DashboardScreen(navController: NavController) {
             Button(
                 onClick = { navController.navigate("announcements") },
                 shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF4CAF50)),
                 modifier = Modifier.fillMaxWidth(0.7f)
             ) {
+                Icon(Icons.Default.Campaign, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Campus Announcements",
                     fontSize = 16.sp,
@@ -137,8 +151,11 @@ fun DashboardScreen(navController: NavController) {
             Button(
                 onClick = { navController.navigate("settings") },
                 shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF4CAF50)),
                 modifier = Modifier.fillMaxWidth(0.7f)
             ) {
+                Icon(Icons.Default.Settings, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Settings",
                     fontSize = 16.sp,

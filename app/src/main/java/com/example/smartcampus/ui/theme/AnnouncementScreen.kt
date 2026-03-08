@@ -91,7 +91,7 @@ fun AnnouncementItem(
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (announcement.isRead) Color.White else Color(0xFFD3FFD5)
+            containerColor = if (announcement.isRead) Color.White else Color(0xFFE8F5E9)
         )
     ) {
         Column(Modifier.padding(16.dp)) {
@@ -100,14 +100,21 @@ fun AnnouncementItem(
             Text(
                 text = "Posted on: ${SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault()).format(Date(announcement.postDate))}",
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.Black
+                color = Color.Gray
             )
+            Spacer(modifier = Modifier.height(8.dp))
             if (announcement.isRead) {
-                Button(onClick = onMarkAsUnread) {
+                OutlinedButton(
+                    onClick = onMarkAsUnread,
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF4CAF50))
+                ) {
                     Text("Mark as Unread")
                 }
             } else {
-                Button(onClick = onMarkAsRead) {
+                Button(
+                    onClick = onMarkAsRead,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                ) {
                     Text("Mark as Read")
                 }
             }

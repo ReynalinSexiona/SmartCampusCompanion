@@ -43,7 +43,7 @@ fun LoginScreen(navController: NavController) {
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(BackgroundGreen, CampusYellow)
+                    colors = listOf(Color(0xFF4CAF50), Color(0xFF81C784))
                 )
             ),
         contentAlignment = Alignment.Center
@@ -53,7 +53,7 @@ fun LoginScreen(navController: NavController) {
                 .fillMaxWidth(0.85f)
                 .padding(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = Color.White.copy(alpha = 0.95f)
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             shape = MaterialTheme.shapes.medium
@@ -77,7 +77,7 @@ fun LoginScreen(navController: NavController) {
                     text = "Smart Campus Companion",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.ExtraBold,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = Color(0xFF2E7D32),
                     textAlign = TextAlign.Center
                 )
 
@@ -87,7 +87,7 @@ fun LoginScreen(navController: NavController) {
                 Text(
                     text = "Login to continue",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color.Gray
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -99,7 +99,11 @@ fun LoginScreen(navController: NavController) {
                     label = { Text("Username") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(color = Color.Black)
+                    textStyle = TextStyle(color = Color.Black),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF4CAF50),
+                        focusedLabelColor = Color(0xFF4CAF50)
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -120,11 +124,15 @@ fun LoginScreen(navController: NavController) {
                         val description = if (passwordVisible) "Hide password" else "Show password"
 
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(imageVector = image, contentDescription = description)
+                            Icon(imageVector = image, contentDescription = description, tint = Color(0xFF4CAF50))
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(color = Color.Black)
+                    textStyle = TextStyle(color = Color.Black),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF4CAF50),
+                        focusedLabelColor = Color(0xFF4CAF50)
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -144,11 +152,13 @@ fun LoginScreen(navController: NavController) {
                             ).show()
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
                 ) {
                     Text(
                         text = "Login",
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
                     )
                 }
             }
