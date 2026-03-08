@@ -21,8 +21,8 @@ app/
 │
 └── MainActivity.kt (App Entry Point)
 
-Architecture Layer
-Data Layer Where data comes from
+## Architecture Layer
+### Data Layer Where data comes from
 
 1.Handles application data
 
@@ -33,39 +33,39 @@ Data Layer Where data comes from
 4.Acts as a single source of truth
 
 
-Domain Layer (Business rules)
+### Domain Layer (Business rules)
 
 • Contains business logic
 • Handles login and session state
 • Independent from UI rendering
 
-Presentation Layer (What user sees)
+### Presentation Layer (What user sees)
 
 • UI components built with Jetpack Compose
 • ViewModels manage UI state
 • Handles user interaction and navigation
 
-Department.kt (Data Model)
+### Department.kt (Data Model)
 
 • Defines the structure of a Department object
 • Represents campus department data
 • Used by repository and UI
 • Simple Kotlin data class
 
-CampusRepository.kt (Data Repository)
+### CampusRepository.kt (Data Repository)
 What it does:
 
 • Centralized location for campus-related data
 • Supplies department information to ViewModels
 • Abstracts data source from UI
 
-Why it’s important:
+### Why it’s important:
 
 • UI doesn’t need to know HOW data is retrieved
 • Easy to replace static data with API or database
 • Keeps code clean and scalable
 
-LoginViewModel.kt (ViewModel)
+### LoginViewModel.kt (ViewModel)
 
 • Holds and manages login UI state
 • Handles authentication logic
@@ -73,34 +73,34 @@ LoginViewModel.kt (ViewModel)
 • Survives configuration changes (rotation)
 • Separates UI from business logic
 
-SessionManager.kt (Session Utility)
+### SessionManager.kt (Session Utility)
 
 • Manages user login session
 • Stores authentication state
 • Controls access to protected screens
 • Helps maintain logged-in state
 
-AppNavGraph.kt (Navigation)
+### AppNavGraph.kt (Navigation)
 
 • Defines all navigation routes in the app
 • Uses Jetpack Compose Navigation
 • Controls screen transitions
 • Sets login as start destination
 
-Routes:
+### Routes:
 
 • "login" → LoginScreen
 • "dashboard" → DashboardScreen
 • "campus" → CampusInfoScreen
 
-MainActivity.kt (Entry Point)
+### MainActivity.kt (Entry Point)
 
 • Entry point of the Android app
 • Extends ComponentActivity
 • Hosts Jetpack Compose UI
 • Loads the navigation graph
 
-Data Flow:
+### Data Flow:
 
 UI → ViewModel → Repository
 ↓               ↑
@@ -115,35 +115,35 @@ SETUP COMPOSE UI
 
 └── setContent { AppNavGraph() }
 
-NAVIGATION INITIALIZES
+### NAVIGATION INITIALIZES
 
 └── NavController created
 └── Start destination set to "login"
 
-LOGIN SCREEN DISPLAYS
+### LOGIN SCREEN DISPLAYS
 
 └── User enters credentials
 └── LoginViewModel handles logic
 
-SESSION VALIDATION
+## SESSION VALIDATION
 
 └── SessionManager updates login state
 
-DASHBOARD SCREEN
+### DASHBOARD SCREEN
 
 └── Navigation to "dashboard"
 └── User accesses campus features
 
-CAMPUS INFO SCREEN
+### CAMPUS INFO SCREEN
 
 └── User navigates to "campus"
 └── Campus information is displayed
 
-BACK NAVIGATION
+### BACK NAVIGATION
 
 └── NavController safely pops back stack
 
-Key Concepts Demonstrated
+## Key Concepts Demonstrated
 
 • Jetpack Compose UI
 • MVVM Architecture
@@ -152,13 +152,13 @@ Key Concepts Demonstrated
 • State management with ViewModel
 • Clean package separation
 
-Team Roles:
+# Team Roles:
 
-Team Leader / Lead Developer
+## Team Leader / Lead Developer
 
 Reynalin Sexiona
 
-Responsibilities:
+### Responsibilities:
 
 Overall project planning and coordination
 
@@ -172,14 +172,16 @@ Integration of all components
 
 Final testing and project integration
 
+Planning for using room
+
 QA / Documenter Testing and documentation
 
 
-UI Developer – Campus Information
+## UI Developer – Campus Information
 
 Aljay Roasario
 
-Responsibilities:
+### Responsibilities:
 
 Designed and implemented CampusInfoScreen.kt
 
@@ -189,11 +191,11 @@ Handled back navigation behavior
 
 Ensured UI consistency with app theme
 
-UI Developer – Dashboard
+## UI Developer – Dashboard
 
 Anthony Carl Silo
 
-Responsibilities:
+### Responsibilities:
 
 Implemented DashboardScreen.kt
 
@@ -203,11 +205,11 @@ Connected dashboard navigation actions
 
 Ensured smooth user experience
 
-Navigation Developer
+## Navigation Developer
 
 KenAnthony Villena
 
-Responsibilities:
+### Responsibilities:
 
 Implemented AppNavGraph.kt
 
@@ -218,7 +220,7 @@ Managed navigation flow between screens
 Set up start destination and back stack handling
 
 
-Git Workflow:
+# Git Workflow:
 
 The project followed a Git-based collaborative workflow to ensure clean version control and organized development.
 
@@ -234,7 +236,7 @@ Feature branches
 
 Each member worked on their assigned feature
 
-Examples:
+## Examples:
 
 feature/campus-info-screen
 
@@ -269,7 +271,7 @@ Team leader reviews and merges changes
 
 Resolves conflicts if necessary
 
-Benefits of This Workflow
+## Benefits of This Workflow
 
 • Prevents code conflicts
 • Encourages modular development
