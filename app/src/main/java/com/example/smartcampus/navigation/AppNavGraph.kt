@@ -12,7 +12,10 @@ import com.example.smartcampus.ui.theme.SettingsScreen
 import com.example.smartcampus.ui.theme.TaskScreen
 
 @Composable
-fun AppNavGraph() {
+fun AppNavGraph(
+    isDarkTheme: Boolean,
+    onThemeChange: (Boolean) -> Unit
+) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -25,6 +28,8 @@ fun AppNavGraph() {
         composable("announcements") { AnnouncementScreen(onBackClick = { navController.popBackStack() }) }
         composable("settings") {
             SettingsScreen(
+                isDarkTheme = isDarkTheme,
+                onThemeChange = onThemeChange,
                 onBackClick = { navController.popBackStack() },
                 onLogout = {
                     navController.navigate("login") {

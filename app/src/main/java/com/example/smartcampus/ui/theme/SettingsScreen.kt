@@ -15,10 +15,22 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBackClick: () -> Unit, onLogout: () -> Unit) {
-    val gradientBackground = Brush.verticalGradient(
-        colors = listOf(Color(0xFF4CAF50), Color(0xFF81C784))
-    )
+fun SettingsScreen(
+    isDarkTheme: Boolean,
+    onThemeChange: (Boolean) -> Unit,
+    onBackClick: () -> Unit,
+    onLogout: () -> Unit
+) {
+    // Dynamic gradient based on theme
+    val gradientBackground = if (isDarkTheme) {
+        Brush.verticalGradient(
+            colors = listOf(Color(0xFF1B5E20), Color(0xFF121212))
+        )
+    } else {
+        Brush.verticalGradient(
+            colors = listOf(Color(0xFF4CAF50), Color(0xFF81C784))
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -31,12 +43,12 @@ fun SettingsScreen(onBackClick: () -> Unit, onLogout: () -> Unit) {
                 }
             )
         }
-    ) {
+    ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(gradientBackground)
-                .padding(it)
+                .padding(paddingValues)
         ) {
             Column(
                 modifier = Modifier
@@ -44,17 +56,41 @@ fun SettingsScreen(onBackClick: () -> Unit, onLogout: () -> Unit) {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(
+                Card(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                    )
                 ) {
-                    Text("Dark Mode", fontWeight = FontWeight.SemiBold)
-                    Switch(checked = false, onCheckedChange = { /* TODO */ })
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Dark Mode",
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Switch(
+                            checked = isDarkTheme,
+                            onCheckedChange = onThemeChange
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = onLogout) {
-                    Text("Logout")
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = onLogout,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    modifier = Modifier.fillMaxWidth(0.5f)
+                ) {
+                    Text("Logout", color = Color.White)
                 }
             }
         }
