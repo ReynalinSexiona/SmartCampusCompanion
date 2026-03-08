@@ -67,15 +67,16 @@ app/src/main/java/com/example/smartcampus/
 
 ### **Aljay Rosario** - *UI/UX (Campus Info)*
 - **Module**: Built the `CampusInfoScreen` using custom components.
-- **Design**: Maintained visual consistency across informational screens.
+- **Design**: Maintained visual consistency across informational screens. and Created na Campusscreen Feature screen, added some uodates on readme.
 
 ### **Anthony Carl Silo** - *UI/UX (Dashboard)*
 - **Module**: Crafted the `DashboardScreen` interface and user workflow.
-- **Interactions**: Implemented dashboard navigation logic and state feedback.
+- **Interactions**: Implemented dashboard navigation logic and state feedback.and updated the viewmodel foe thw announcement featurw
 
 ### **KenAnthony Villena** - *Navigation Engineer*
 - **Module**: Developed the `AppNavGraph` and route management.
-- **Flow**: Ensured smooth back-stack handling and deep-link readiness.
+- **Flow**: Ensured smooth back-stack handling and deep-link readiness. and updated the Task Manager Feauture 
+  
 
 ---
 
