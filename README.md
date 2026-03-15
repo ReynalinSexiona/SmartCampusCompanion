@@ -1,279 +1,188 @@
 app/
 ├── data/ (Data Layer)
-│   ├── CampusRepository.kt (Data Repository)
-│   └── Department.kt (Data Model)
+│   ├── local/ (Room Database & Entities)
+│   │   ├── SmartCampusDatabase.kt  (Main Database)
+│   │   ├── TaskDao.kt              (DAO for Task Management)
+│   │   ├── TaskEntity.kt           (Task Data Schema)
+│   │   ├── AnnouncementDao.kt      (DAO for Updates)
+│   │   └── AnnouncementEntity.kt   (Announcement Data Schema)
+│   ├── CampusRepository.kt         (Campus Info Provider)
+│   ├── TaskRepository.kt           (Task Logic Provider)
+│   ├── AnnouncementRepository.kt   (Updates Logic Provider)
+│   └── Department.kt               (Data Model)
 │
 ├── navigation/
-│   └── AppNavGraph.kt (Navigation Graph)
+│   └── AppNavGraph.kt              (Centralized Navigation Logic)
 │
 ├── ui/ (Presentation Layer)
 │   └── theme/
-│       ├── LoginScreen.kt (Login UI)
-│       ├── DashboardScreen.kt (Main Dashboard)
-│       ├── CampusInfoScreen.kt (Campus Information UI)
-│       ├── LoginViewModel.kt (Business Logic)
-│       ├── Color.kt (Theme Colors)
-│       ├── Theme.kt (App Theme)
-│       └── Type.kt (Typography)
+│       ├── screens/ (UI Components)
+│       │   ├── LoginScreen.kt        (Auth UI)
+│       │   ├── DashboardScreen.kt    (Main Hub UI)
+│       │   ├── CampusInfoScreen.kt   (Information UI)
+│       │   ├── AnnouncementScreen.kt (Updates UI)
+│       │   ├── TaskScreen.kt         (Task Manager UI)
+│       │   └── SettingsScreen.kt     (App Settings)
+│       ├── viewmodels/ (State Management)
+│       │   ├── LoginViewModel.kt
+│       │   ├── AnnouncementViewModel.kt
+│       │   └── TaskViewModel.kt
+│       └── theme-config/ (Styling)
+│           ├── Color.kt
+│           ├── Theme.kt
+│           ├── Type.kt
+│           └── Shape.kt
 │
 ├── util/
-│   └── SessionManager.kt (Session Handling)
+│   └── SessionManager.kt           (Auth & Session Logic)
 │
-└── MainActivity.kt (App Entry Point)
+└── MainActivity.kt                 (Application Entry Point)
 
-## Architecture Layer
-### Data Layer Where data comes from
+# App Description
+Smart Campus Companion is a comprehensive mobile application designed to enhance the student experience by streamlining access to essential university resources. The app serves as a centralized hub where students can view campus information, stay updated with real-time announcements, and manage their academic responsibilities through an integrated task manager. Built with Jetpack Compose and following the MVVM architecture, it provides a modern, responsive, and user-friendly interface tailored for the needs of a digital campus.
 
-1.Handles application data
+# Architecture Layer
+The project follows the Clean Architecture pattern combined with MVVM (Model-View-ViewModel) to ensure a scalable and maintainable codebase.
+###### 1. Data Layer (The Foundation)
+• SmartCampusDatabase.kt: The central Room database that manages local persistence for tasks and announcements.
+• DAOs (Data Access Objects): TaskDao and AnnouncementDao define the SQL queries for interacting with the database.
+• Entities: TaskEntity and AnnouncementEntity represent the database tables.
+• Repositories: CampusRepository, TaskRepository, and AnnouncementRepository act as the single source of truth, abstracting data sources from the rest of the app.
+###### 2. Domain Layer (Business Logic)
+• Use Cases: Handles the logic for filtering announcements, calculating task deadlines, and managing user sessions.
+• SessionManager.kt: Manages user authentication states and secure access to dashboard features.
+###### 3. Presentation Layer (UI)
+• Jetpack Compose: All UI components are built using a declarative approach for a modern look and feel.
+###### _• ViewModels:_
+◦ LoginViewModel: Handles user authentication logic.
+◦ AnnouncementViewModel: Manages the state of campus updates and "read/unread" status.
+◦ TaskViewModel: (Implemented by KenAnthony) Handles the creation, deletion, and tracking of student tasks.
 
-2.Manages repositories and models
+## Key Components Explained
+##### _SmartCampusDatabase.kt (Room Database)_
+• Provides the offline storage capability.
 
-3.Provides data to other layers
+• Ensures that announcements and tasks are saved even when the app is closed.
+##### _AnnouncementViewModel.kt_
+• What it does: Fetches announcements from the repository and exposes them as a state to the UI.
 
-4.Acts as a single source of truth
+• Logic: Includes a "refresh" mechanism and handles marking announcements as read.
+##### _AppNavGraph.kt (Navigation)_
+•Routes:
+◦ "login" → Entry point for authentication.
+◦ "dashboard" → Main hub for all features.
+◦ "campus_info" → Static campus details.
+◦ "announcements" → List of university updates.
+◦ "task_manager" → Personal productivity tool for students.
+##### _MainActivity.kt (Entry Point)_
+• The ComponentActivity that hosts the NavHost. It initializes the theme and sets up the navigation graph upon app launch.
 
+### Data Flow
+The app follows a Unidirectional Data Flow (UDF):
+1. User Interaction: User clicks a button in the Compose UI.
+2. Action: The UI calls a function in the ViewModel.
+3. Data Processing: The ViewModel interacts with the Repository.
+4. Local Storage: The Repository fetches/saves data via the Room DAO.
+5. State Update: The Repository returns a Flow of data.
+6. UI Refresh: The ViewModel updates the State, and the UI automatically recomposes to show the new data.
 
-### Domain Layer (Business rules)
-
-• Contains business logic
-• Handles login and session state
-• Independent from UI rendering
-
-### Presentation Layer (What user sees)
-
-• UI components built with Jetpack Compose
-• ViewModels manage UI state
-• Handles user interaction and navigation
-
-### Department.kt (Data Model)
-
-• Defines the structure of a Department object
-• Represents campus department data
-• Used by repository and UI
-• Simple Kotlin data class
-
-### CampusRepository.kt (Data Repository)
-What it does:
-
-• Centralized location for campus-related data
-• Supplies department information to ViewModels
-• Abstracts data source from UI
-
-### Why it’s important:
-
-• UI doesn’t need to know HOW data is retrieved
-• Easy to replace static data with API or database
-• Keeps code clean and scalable
-
-### LoginViewModel.kt (ViewModel)
-
-• Holds and manages login UI state
-• Handles authentication logic
-• Communicates with SessionManager
-• Survives configuration changes (rotation)
-• Separates UI from business logic
-
-### SessionManager.kt (Session Utility)
-
-• Manages user login session
-• Stores authentication state
-• Controls access to protected screens
-• Helps maintain logged-in state
-
-### AppNavGraph.kt (Navigation)
-
-• Defines all navigation routes in the app
-• Uses Jetpack Compose Navigation
-• Controls screen transitions
-• Sets login as start destination
-
-### Routes:
-
-• "login" → LoginScreen
-• "dashboard" → DashboardScreen
-• "campus" → CampusInfoScreen
-
-### MainActivity.kt (Entry Point)
-
-• Entry point of the Android app
-• Extends ComponentActivity
-• Hosts Jetpack Compose UI
-• Loads the navigation graph
-
-### Data Flow:
-
-UI → ViewModel → Repository
-↓               ↑
-UI automatically updates based on state
-
-Complete Step-by-Step Flow
-USER LAUNCHES APP
-
-└── MainActivity.onCreate() is called
-
-SETUP COMPOSE UI
-
-└── setContent { AppNavGraph() }
-
-### NAVIGATION INITIALIZES
-
-└── NavController created
-└── Start destination set to "login"
-
-### LOGIN SCREEN DISPLAYS
-
-└── User enters credentials
-└── LoginViewModel handles logic
-
-## SESSION VALIDATION
-
-└── SessionManager updates login state
-
-### DASHBOARD SCREEN
-
-└── Navigation to "dashboard"
-└── User accesses campus features
-
-### CAMPUS INFO SCREEN
-
-└── User navigates to "campus"
-└── Campus information is displayed
-
-### BACK NAVIGATION
-
-└── NavController safely pops back stack
+## Complete App Flow
+1. LAUNCH: MainActivity starts → AppNavGraph loads.
+2. AUTH: User logs in via LoginScreen → SessionManager saves the state.
+3. DASHBOARD: User lands on DashboardScreen (the central hub).
+4. UPDATES: User checks AnnouncementScreen → AnnouncementViewModel triggers a database fetch.
+5. PRODUCTIVITY: User adds a task in TaskManager → TaskRepository saves it to Room.
+6. NAVIGATION: User moves between screens seamlessly via the NavController without losing app state.
 
 ## Key Concepts Demonstrated
+• Room Database: Local persistence and offline support.
 
-• Jetpack Compose UI
-• MVVM Architecture
-• Repository Pattern
-• Navigation Component (Compose)
-• State management with ViewModel
-• Clean package separation
+• Jetpack Compose: Modern, reactive UI development.
+
+• MVVM Architecture: Separation of concerns for easier testing and updates.
+
+• Kotlin Coroutines & Flow: Asynchronous programming for smooth UI performance.
+
+• Dependency Management: Organized package structure for a professional codebase.
 
 # Team Roles:
+### Reynalin Sexiona – Team Leader / Lead Developer
+#### Responsibilities:
+• Overall project planning, coordination, and management.
 
-## Team Leader / Lead Developer
+• Defined application architecture (MVVM + Compose).
 
-Reynalin Sexiona
+• Implemented the Data Layer (CampusRepository, models, and Room database planning).
 
-### Responsibilities:
+• Developed the Login system and session management.
 
-Overall project planning and coordination
+• Final Integration: Responsible for merging all components and performing final testing.
 
-Application architecture (MVVM + Compose)
+• Support: Stepped in to complete and fix all pending tasks or features that were left unfinished by other members to ensure project completion.
 
-Data layer implementation (CampusRepository, models)
+• QA & Documentation.
 
-Login system and session management
+### Aljay Roasario – UI Developer (Campus Info & Announcements)
+#### Responsibilities:
+• Designed and implemented CampusInfoScreen.kt.
 
-Integration of all components
+• Announcement Screens: Created the user interface for viewing and interacting with campus announcements.
 
-Final testing and project integration
+• Handled back navigation behavior and UI consistency across assigned modules.
 
-Planning for using room
+### Anthony Carl Silo – UI Developer (Dashboard & Logic)
+#### Responsibilities:
+• Implemented DashboardScreen.kt and designed the main user entry point.
 
-QA / Documenter Testing and documentation
+• Announcement Logic: Created the AnnouncementViewModel.kt to handle the business logic and state for the announcement system.
 
+• Ensured smooth user experience through optimized navigation actions.
 
-## UI Developer – Campus Information
+### KenAnthony Villena – Navigation & Task Management
+#### Responsibilities:
+• Implemented AppNavGraph.kt and defined all navigation routes.
 
-Aljay Roasario
+• Task Manager: Designed and implemented the Task Management system, allowing users to track their to-do lists.
 
-### Responsibilities:
+• Managed the navigation flow, start destinations, and back-stack handling.
 
-Designed and implemented CampusInfoScreen.kt
+# Git Workflow
+We utilized a Feature Branch Workflow to maintain code organized and prevent project-wide errors during development.
+1. Main Branch: Used only for stable, tested, and integrated code.
+2. Feature Branches: Each member worked on a specific branch (e.g., feature/announcements, feature/task-manager) to avoid interfering with others' work.
+3. Pull Requests: Members submitted their code for review before it was merged into the main branch by the Team Leader.
 
-Displayed campus-related information
+## Command Flow:
+Java
+git checkout -b feature/your-feature  # Create new branch
+git add .                             # Stage changes
+git commit -m "Describe changes"      # Commit work
+git push origin feature/your-feature  # Push to GitHub
 
-Handled back navigation behavior
+## Git Challenges
+During the collaborative process, the team faced several technical hurdles:
 
-Ensured UI consistency with app theme
+• Merge Conflicts: Occurred frequently when multiple members modified shared files like AppNavGraph.kt or MainActivity.kt.
 
-## UI Developer – Dashboard
+• Outdated Branches: Some members fell behind the main branch, making the final integration process difficult.
 
-Anthony Carl Silo
+• Tracking Large Files: Initially, some IDE-specific files (like .idea or build folders) were tracked, causing clutter in the repository.
 
-### Responsibilities:
+## Conflict Resolution
+To maintain a healthy codebase, the following strategies were implemented:
 
-Implemented DashboardScreen.kt
+• Communication: Before merging significant changes, members communicated through chat to ensure no one else was working on the same logic.
 
-Designed the main user dashboard
+• Frequent Pulls: Members were encouraged to git pull origin main daily to sync their local work with the latest team updates.
 
-Connected dashboard navigation actions
+• Manual Merging: In cases of hard conflicts, the Team Leader used the Android Studio Merge Tool to manually select the correct lines of code, ensuring that no functionality from either side was lost.
 
-Ensured smooth user experience
-
-## Navigation Developer
-
-KenAnthony Villena
-
-### Responsibilities:
-
-Implemented AppNavGraph.kt
-
-Defined navigation routes and destinations
-
-Managed navigation flow between screens
-
-Set up start destination and back stack handling
-
-
-# Git Workflow:
-
-The project followed a Git-based collaborative workflow to ensure clean version control and organized development.
-
-Branching Strategy
-
-master / main branch
-
-Contains stable and integrated code
-
-Final submission branch
-
-Feature branches
-
-Each member worked on their assigned feature
-
-## Examples:
-
-feature/campus-info-screen
-
-feature/dashboard-screen
-
-feature/navigation-graph
-
-Development Workflow
-
-Create feature branch
-
-git checkout -b feature/feature-name
-
-
-Implement assigned task
-
-Each member works only on their assigned files
-
-Commit changes
-
-git commit -m "Add CampusInfoScreen UI"
-
-
-Push to GitHub
-
-git push origin feature/feature-name
-
-
-Merge to main branch
-
-Team leader reviews and merges changes
-
-Resolves conflicts if necessary
-
-## Benefits of This Workflow
-
+• Strict .gitignore: Refined the .gitignore file to ensure only source code and necessary resources were tracked, preventing configuration conflicts.
+##### Buy Implementing this it,
 • Prevents code conflicts
+
 • Encourages modular development
+
 • Keeps main branch stable
+
 • Makes collaboration organized and traceable
