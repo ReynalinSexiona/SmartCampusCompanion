@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -135,7 +136,10 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
                                 taskToEdit = task
                                 showEditDialog = true
                             },
-                            onDelete = { viewModel.deleteTask(task) }
+                            onDelete = { viewModel.deleteTask(task) },
+                            onToggleDone = { isDone ->
+                                viewModel.updateTask(task.copy(isDone = isDone))
+                            }
                         )
                     }
                 }
@@ -257,7 +261,7 @@ fun EditTaskDialog(task: TaskEntity, onDismiss: () -> Unit, onSave: (TaskEntity)
 }
 
 @Composable
-fun TaskItem(task: TaskEntity, onEdit: () -> Unit, onDelete: () -> Unit) {
+fun TaskItem(task: TaskEntity, onEdit: () -> Unit, onDelete: () -> Unit, onToggleDone: (Boolean) -> Unit) {
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
 
     Card(
@@ -265,22 +269,52 @@ fun TaskItem(task: TaskEntity, onEdit: () -> Unit, onDelete: () -> Unit) {
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xCCFFFFFF))
+        colors = CardDefaults.cardColors(containerColor = if (task.isDone) Color(0xFFE0E0E0) else Color(0xCCFFFFFF))
     ) {
-        Column(Modifier.padding(16.dp)) {
-            Text(text = task.title, style = MaterialTheme.typography.titleMedium.copy(color = Color.Black), fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = task.description, style = TextStyle(color = Color.Black))
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Due: ${SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault()).format(Date(task.date))}", style = MaterialTheme.typography.bodySmall.copy(color = Color.Black))
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                Button(onClick = onEdit) {
-                    Text("Edit")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = { showDeleteConfirmDialog = true }) {
-                    Text("Delete")
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = task.isDone,
+                onCheckedChange = { onToggleDone(it) },
+                colors = CheckboxDefaults.colors(checkedColor = Color(0xFF4CAF50))
+            )
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = task.title,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = if (task.isDone) Color.Gray else Color.Black,
+                        textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None
+                    ),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = task.description,
+                    style = TextStyle(
+                        color = if (task.isDone) Color.Gray else Color.Black,
+                        textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None
+                    )
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Due: ${SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault()).format(Date(task.date))}",
+                    style = MaterialTheme.typography.bodySmall.copy(color = if (task.isDone) Color.Gray else Color.Black)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                    Button(onClick = onEdit) {
+                        Text("Edit")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = { showDeleteConfirmDialog = true }) {
+                        Text("Delete")
+                    }
                 }
             }
         }

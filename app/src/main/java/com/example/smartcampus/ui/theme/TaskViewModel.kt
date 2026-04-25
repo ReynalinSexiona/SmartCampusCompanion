@@ -6,7 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.smartcampus.data.local.SmartCampusDatabase
 import com.example.smartcampus.data.local.TaskEntity
 import com.example.smartcampus.data.TaskRepository
+import com.example.smartcampus.util.SessionManager
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -18,16 +22,20 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = TaskRepository(dao)
 
-    val tasks = repository.tasks.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        emptyList()
-    )
+    private val currentUserId = SessionManager.getUsername(application) ?: ""
+
+    val tasks: StateFlow<List<TaskEntity>> = dao.getTasksByUser(currentUserId)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            emptyList()
+        )
 
     fun addTask(title: String, description: String, date: Long) {
         viewModelScope.launch {
             repository.insert(
                 TaskEntity(
+                    userId = currentUserId,
                     title = title,
                     description = description,
                     date = date

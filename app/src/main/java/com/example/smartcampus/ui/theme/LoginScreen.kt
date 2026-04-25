@@ -24,15 +24,15 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.smartcampus.R
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewModel()) {
 
     val context = LocalContext.current
-    val viewModel = LoginViewModel()
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -132,16 +132,18 @@ fun LoginScreen(navController: NavController) {
                 // LOGIN BUTTON
                 Button(
                     onClick = {
-                        if (viewModel.validateLogin(username, password, context)) {
-                            navController.navigate("dashboard") {
-                                popUpTo("login") { inclusive = true }
+                        viewModel.validateLogin(username, password, context) { success ->
+                            if (success) {
+                                navController.navigate("dashboard") {
+                                    popUpTo("login") { inclusive = true }
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Invalid credentials",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "Invalid credentials",
-                                Toast.LENGTH_SHORT
-                            ).show()
                         }
                     },
                     modifier = Modifier.fillMaxWidth()

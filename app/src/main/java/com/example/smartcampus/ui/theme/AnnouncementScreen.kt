@@ -7,12 +7,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -32,6 +30,9 @@ fun AnnouncementScreen(onBackClick: () -> Unit, viewModel: AnnouncementViewModel
         colors = listOf(Color(0xFF4CAF50), Color(0xFF81C784))
     )
     val context = LocalContext.current
+    var showAddDialog by remember { mutableStateOf(false) }
+
+    val isAdmin = remember { viewModel.isAdmin() }
 
     LaunchedEffect(key1 = true) {
         viewModel.toastMessage.collect { message ->
@@ -49,6 +50,11 @@ fun AnnouncementScreen(onBackClick: () -> Unit, viewModel: AnnouncementViewModel
                     }
                 },
                 actions = {
+                    if (isAdmin) {
+                        IconButton(onClick = { showAddDialog = true }) {
+                            Icon(Icons.Default.Add, contentDescription = "Add Announcement", tint = Color.Black)
+                        }
+                    }
                     IconButton(onClick = { viewModel.refreshAnnouncements() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = Color.Black)
                     }
@@ -56,12 +62,12 @@ fun AnnouncementScreen(onBackClick: () -> Unit, viewModel: AnnouncementViewModel
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         }
-    ) {
+    ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(gradientBackground)
-                .padding(it)
+                .padding(padding)
         ) {
             LazyColumn(
                 modifier = Modifier
@@ -77,7 +83,59 @@ fun AnnouncementScreen(onBackClick: () -> Unit, viewModel: AnnouncementViewModel
                 }
             }
         }
+
+        if (showAddDialog) {
+            AddAnnouncementDialog(
+                onDismiss = { showAddDialog = false },
+                onAdd = { title, message ->
+                    viewModel.addAnnouncement(title, message)
+                    showAddDialog = false
+                }
+            )
+        }
     }
+}
+
+@Composable
+fun AddAnnouncementDialog(onDismiss: () -> Unit, onAdd: (String, String) -> Unit) {
+    var title by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("New Announcement") },
+        text = {
+            Column {
+                TextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Title") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = message,
+                    onValueChange = { message = it },
+                    label = { Text("Message") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { if (title.isNotBlank() && message.isNotBlank()) onAdd(title, message) },
+                enabled = title.isNotBlank() && message.isNotBlank()
+            ) {
+                Text("Add")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Composable
@@ -102,6 +160,7 @@ fun AnnouncementItem(
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Black
             )
+            Spacer(modifier = Modifier.height(8.dp))
             if (announcement.isRead) {
                 Button(onClick = onMarkAsUnread) {
                     Text("Mark as Unread")

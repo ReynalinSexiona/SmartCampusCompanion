@@ -9,6 +9,9 @@ interface TaskDao {
     @Query("SELECT * FROM tasks ORDER BY date ASC")
     fun getAllTasks(): Flow<List<TaskEntity>>
 
+    @Query("SELECT * FROM tasks WHERE userId = :userId ORDER BY date ASC")
+    fun getTasksByUser(userId: String): Flow<List<TaskEntity>>
+
     @Insert
     suspend fun insert(task: TaskEntity)
 
