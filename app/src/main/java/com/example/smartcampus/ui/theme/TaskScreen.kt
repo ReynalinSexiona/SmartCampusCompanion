@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -128,19 +130,23 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                LazyColumn {
-                    items(tasks) { task ->
-                        TaskItem(
-                            task = task,
-                            onEdit = {
-                                taskToEdit = task
-                                showEditDialog = true
-                            },
-                            onDelete = { viewModel.deleteTask(task) },
-                            onToggleDone = { isDone ->
-                                viewModel.updateTask(task.copy(isDone = isDone))
-                            }
-                        )
+                if (tasks.isEmpty()) {
+                    EmptyTaskState()
+                } else {
+                    LazyColumn {
+                        items(tasks) { task ->
+                            TaskItem(
+                                task = task,
+                                onEdit = {
+                                    taskToEdit = task
+                                    showEditDialog = true
+                                },
+                                onDelete = { viewModel.deleteTask(task) },
+                                onToggleDone = { isDone ->
+                                    viewModel.updateTask(task.copy(isDone = isDone))
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -160,6 +166,35 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
 }
 
 @Composable
+fun EmptyTaskState() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.Assignment,
+            contentDescription = null,
+            modifier = Modifier.size(80.dp),
+            tint = Color.White.copy(alpha = 0.6f)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Your schedule is clear!",
+            color = Color.White,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "Add tasks above to stay organized.",
+            color = Color.White.copy(alpha = 0.8f),
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
 fun DueDateSelector(dueDate: Long?, onDueDateChange: (Long?) -> Unit) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
@@ -169,6 +204,10 @@ fun DueDateSelector(dueDate: Long?, onDueDateChange: (Long?) -> Unit) {
 
     if (dueDate != null) {
         calendar.timeInMillis = dueDate
+    } else {
+        // Clear seconds and milliseconds to avoid "late" alarms
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
     }
 
     val timePickerDialog = TimePickerDialog(
@@ -176,6 +215,8 @@ fun DueDateSelector(dueDate: Long?, onDueDateChange: (Long?) -> Unit) {
         { _, hourOfDay, minute ->
             calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
             calendar.set(Calendar.MINUTE, minute)
+            calendar.set(Calendar.SECOND, 0)
+            calendar.set(Calendar.MILLISECOND, 0)
             onDueDateChange(calendar.timeInMillis)
         },
         calendar.get(Calendar.HOUR_OF_DAY),

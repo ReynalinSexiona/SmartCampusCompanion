@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [TaskEntity::class, Announcement::class, UserEntity::class], version = 16, exportSchema = false)
+@Database(entities = [TaskEntity::class, Announcement::class, UserEntity::class], version = 19, exportSchema = false)
 abstract class SmartCampusDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDao

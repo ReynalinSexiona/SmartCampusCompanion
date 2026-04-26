@@ -33,8 +33,9 @@ import com.example.smartcampus.R
 fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewModel()) {
 
     val context = LocalContext.current
+    val isLoading by viewModel.isLoading.collectAsState()
 
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -92,14 +93,16 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewMo
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // USERNAME
+                // EMAIL
                 OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = { Text("Username") },
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(color = Color.Black)
+                    textStyle = TextStyle(color = Color.Black),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    enabled = !isLoading
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -119,12 +122,13 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewMo
 
                         val description = if (passwordVisible) "Hide password" else "Show password"
 
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }, enabled = !isLoading) {
                             Icon(imageVector = image, contentDescription = description)
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(color = Color.Black)
+                    textStyle = TextStyle(color = Color.Black),
+                    enabled = !isLoading
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -132,7 +136,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewMo
                 // LOGIN BUTTON
                 Button(
                     onClick = {
-                        viewModel.validateLogin(username, password, context) { success ->
+                        viewModel.validateLogin(email, password, context) { success ->
                             if (success) {
                                 navController.navigate("dashboard") {
                                     popUpTo("login") { inclusive = true }
@@ -146,12 +150,21 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewMo
                             }
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isLoading
                 ) {
-                    Text(
-                        text = "Login",
-                        fontWeight = FontWeight.Bold
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(
+                            text = "Login",
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
