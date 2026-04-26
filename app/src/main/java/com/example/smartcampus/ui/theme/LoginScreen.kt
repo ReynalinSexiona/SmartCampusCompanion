@@ -24,17 +24,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.smartcampus.R
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewModel()) {
 
     val context = LocalContext.current
-    val viewModel = LoginViewModel()
+    val isLoading by viewModel.isLoading.collectAsState()
 
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -43,7 +44,7 @@ fun LoginScreen(navController: NavController) {
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF4CAF50), Color(0xFF81C784))
+                    colors = listOf(BackgroundGreen, CampusYellow)
                 )
             ),
         contentAlignment = Alignment.Center
@@ -53,7 +54,7 @@ fun LoginScreen(navController: NavController) {
                 .fillMaxWidth(0.85f)
                 .padding(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color.White.copy(alpha = 0.95f)
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             shape = MaterialTheme.shapes.medium
@@ -77,7 +78,7 @@ fun LoginScreen(navController: NavController) {
                     text = "Smart Campus Companion",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF2E7D32),
+                    color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )
 
@@ -87,23 +88,21 @@ fun LoginScreen(navController: NavController) {
                 Text(
                     text = "Login to continue",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // USERNAME
+                // EMAIL
                 OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = { Text("Username") },
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(color = Color.Black),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF4CAF50),
-                        focusedLabelColor = Color(0xFF4CAF50)
-                    )
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    enabled = !isLoading
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -123,16 +122,13 @@ fun LoginScreen(navController: NavController) {
 
                         val description = if (passwordVisible) "Hide password" else "Show password"
 
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(imageVector = image, contentDescription = description, tint = Color(0xFF4CAF50))
+                        IconButton(onClick = { passwordVisible = !passwordVisible }, enabled = !isLoading) {
+                            Icon(imageVector = image, contentDescription = description)
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(color = Color.Black),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF4CAF50),
-                        focusedLabelColor = Color(0xFF4CAF50)
-                    )
+                    enabled = !isLoading
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -140,26 +136,35 @@ fun LoginScreen(navController: NavController) {
                 // LOGIN BUTTON
                 Button(
                     onClick = {
-                        if (viewModel.validateLogin(username, password, context)) {
-                            navController.navigate("dashboard") {
-                                popUpTo("login") { inclusive = true }
+                        viewModel.validateLogin(email, password, context) { success ->
+                            if (success) {
+                                navController.navigate("dashboard") {
+                                    popUpTo("login") { inclusive = true }
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Invalid credentials",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "Invalid credentials",
-                                Toast.LENGTH_SHORT
-                            ).show()
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                    enabled = !isLoading
                 ) {
-                    Text(
-                        text = "Login",
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(
+                            text = "Login",
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }

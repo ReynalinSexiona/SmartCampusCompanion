@@ -7,7 +7,9 @@ import androidx.room.PrimaryKey
 data class TaskEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+    val userId: String, // Added to separate tasks by user
     val title: String,
     val description: String,
-    val date: Long
+    val date: Long,
+    val isDone: Boolean = false
 )
