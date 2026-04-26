@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.smartcampus.ui.theme
 
 import android.app.DatePickerDialog
@@ -10,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,6 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,7 +36,6 @@ import java.util.*
 fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) {
 
     val tasks by viewModel.tasks.collectAsState()
-    val context = LocalContext.current
 
     var showEditDialog by remember { mutableStateOf(false) }
     var taskToEdit by remember { mutableStateOf<TaskEntity?>(null) }
@@ -55,12 +59,12 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
                 }
             )
         }
-    ) {
+    ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(gradientBackground)
-                .padding(it)
+                .padding(paddingValues)
         ) {
             Column(
                 modifier = Modifier
@@ -70,7 +74,7 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
 
                 OutlinedTextField(
                     value = title,
-                    onValueChange = { title = it },
+                    onValueChange = { newTitle -> title = newTitle },
                     label = { Text("Task Title") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.colors(
@@ -83,7 +87,7 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
 
                 OutlinedTextField(
                     value = description,
-                    onValueChange = { description = it },
+                    onValueChange = { newDesc -> description = newDesc },
                     label = { Text("Description") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.colors(
@@ -94,7 +98,7 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                DueDateSelector(dueDate = dueDate, onDueDateChange = { dueDate = it })
+                DueDateSelector(dueDate = dueDate, onDueDateChange = { selectedDate -> dueDate = selectedDate })
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -126,16 +130,23 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                LazyColumn {
-                    items(tasks) { task ->
-                        TaskItem(
-                            task = task,
-                            onEdit = {
-                                taskToEdit = task
-                                showEditDialog = true
-                            },
-                            onDelete = { viewModel.deleteTask(task) }
-                        )
+                if (tasks.isEmpty()) {
+                    EmptyTaskState()
+                } else {
+                    LazyColumn {
+                        items(tasks) { task ->
+                            TaskItem(
+                                task = task,
+                                onEdit = {
+                                    taskToEdit = task
+                                    showEditDialog = true
+                                },
+                                onDelete = { viewModel.deleteTask(task) },
+                                onToggleDone = { isDone ->
+                                    viewModel.updateTask(task.copy(isDone = isDone))
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -146,10 +157,39 @@ fun TaskScreen(onBackClick: () -> Unit, viewModel: TaskViewModel = viewModel()) 
         EditTaskDialog(
             task = taskToEdit!!,
             onDismiss = { showEditDialog = false },
-            onSave = {
-                viewModel.updateTask(it)
+            onSave = { updatedTask ->
+                viewModel.updateTask(updatedTask)
                 showEditDialog = false
             }
+        )
+    }
+}
+
+@Composable
+fun EmptyTaskState() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.Assignment,
+            contentDescription = null,
+            modifier = Modifier.size(80.dp),
+            tint = Color.White.copy(alpha = 0.6f)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Your schedule is clear!",
+            color = Color.White,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "Add tasks above to stay organized.",
+            color = Color.White.copy(alpha = 0.8f),
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -164,6 +204,10 @@ fun DueDateSelector(dueDate: Long?, onDueDateChange: (Long?) -> Unit) {
 
     if (dueDate != null) {
         calendar.timeInMillis = dueDate
+    } else {
+        // Clear seconds and milliseconds to avoid "late" alarms
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
     }
 
     val timePickerDialog = TimePickerDialog(
@@ -171,6 +215,8 @@ fun DueDateSelector(dueDate: Long?, onDueDateChange: (Long?) -> Unit) {
         { _, hourOfDay, minute ->
             calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
             calendar.set(Calendar.MINUTE, minute)
+            calendar.set(Calendar.SECOND, 0)
+            calendar.set(Calendar.MILLISECOND, 0)
             onDueDateChange(calendar.timeInMillis)
         },
         calendar.get(Calendar.HOUR_OF_DAY),
@@ -212,7 +258,7 @@ fun DueDateSelector(dueDate: Long?, onDueDateChange: (Long?) -> Unit) {
 fun EditTaskDialog(task: TaskEntity, onDismiss: () -> Unit, onSave: (TaskEntity) -> Unit) {
     var title by remember { mutableStateOf(task.title) }
     var description by remember { mutableStateOf(task.description) }
-    var dueDate by remember { mutableStateOf(task.date) }
+    var dueDate by remember { mutableLongStateOf(task.date) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -239,7 +285,7 @@ fun EditTaskDialog(task: TaskEntity, onDismiss: () -> Unit, onSave: (TaskEntity)
                     )
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                DueDateSelector(dueDate = dueDate, onDueDateChange = { dueDate = it ?: task.date })
+                DueDateSelector(dueDate = dueDate, onDueDateChange = { selected -> dueDate = selected ?: task.date })
             }
         },
         confirmButton = {
@@ -256,7 +302,7 @@ fun EditTaskDialog(task: TaskEntity, onDismiss: () -> Unit, onSave: (TaskEntity)
 }
 
 @Composable
-fun TaskItem(task: TaskEntity, onEdit: () -> Unit, onDelete: () -> Unit) {
+fun TaskItem(task: TaskEntity, onEdit: () -> Unit, onDelete: () -> Unit, onToggleDone: (Boolean) -> Unit) {
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
 
     Card(
@@ -264,22 +310,52 @@ fun TaskItem(task: TaskEntity, onEdit: () -> Unit, onDelete: () -> Unit) {
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xCCFFFFFF))
+        colors = CardDefaults.cardColors(containerColor = if (task.isDone) Color(0xFFE0E0E0) else Color(0xCCFFFFFF))
     ) {
-        Column(Modifier.padding(16.dp)) {
-            Text(text = task.title, style = MaterialTheme.typography.titleMedium.copy(color = Color.Black), fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = task.description, style = TextStyle(color = Color.Black))
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Due: ${SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault()).format(Date(task.date))}", style = MaterialTheme.typography.bodySmall.copy(color = Color.Black))
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                Button(onClick = onEdit) {
-                    Text("Edit")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = { showDeleteConfirmDialog = true }) {
-                    Text("Delete")
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = task.isDone,
+                onCheckedChange = { onToggleDone(it) },
+                colors = CheckboxDefaults.colors(checkedColor = Color(0xFF4CAF50))
+            )
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = task.title,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = if (task.isDone) Color.Gray else Color.Black,
+                        textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None
+                    ),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = task.description,
+                    style = TextStyle(
+                        color = if (task.isDone) Color.Gray else Color.Black,
+                        textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None
+                    )
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Due: ${SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault()).format(Date(task.date))}",
+                    style = MaterialTheme.typography.bodySmall.copy(color = if (task.isDone) Color.Gray else Color.Black)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                    Button(onClick = onEdit) {
+                        Text("Edit")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = { showDeleteConfirmDialog = true }) {
+                        Text("Delete")
+                    }
                 }
             }
         }

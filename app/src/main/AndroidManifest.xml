@@ -2,6 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -11,66 +21,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartCampus">
-        <activity
-            android:name=".ui.theme.Shape"
-            android:exported="false" />
-        <activity
-            android:name=".ui.theme.AnnouncementScreen"
-            android:exported="false" />
-        <activity
-            android:name=".ui.theme.TaskScreen"
-            android:exported="false" />
-        <activity
-            android:name=".ui.theme.AnnouncementViewModel"
-            android:exported="false" />
-        <activity
-            android:name=".ui.theme.TaskViewModel"
-            android:exported="false" />
-        <activity
-            android:name=".data.local.SmartCampusDatabase"
-            android:exported="false" />
-        <activity
-            android:name=".data.local.AnnouncementDao"
-            android:exported="false" />
-        <activity
-            android:name=".data.local.TaskDao"
-            android:exported="false" />
-        <activity
-            android:name=".data.local.AnnouncementEntity"
-            android:exported="false" />
-        <activity
-            android:name=".data.local.TaskEntity"
-            android:exported="false" />
-        <activity
-            android:name=".data.AnnouncementRepository"
-            android:exported="false" />
-        <activity
-            android:name=".data.TaskRepository"
-            android:exported="false" />
-        <activity
-            android:name=".util.SessionManager"
-            android:exported="false" />
-        <activity
-            android:name=".navigation.AppNavGraph"
-            android:exported="false" />
-        <activity
-            android:name=".ui.theme.CampusInfoScreen"
-            android:exported="false" />
-        <activity
-            android:name=".ui.theme.DashboardScreen"
-            android:exported="false" />
-        <activity
-            android:name=".ui.theme.LoginViewModel"
-            android:exported="false" />
-        <activity
-            android:name=".ui.theme.LoginScreen"
-            android:exported="false" />
-        <activity
-            android:name=".data.CampusRepository"
-            android:exported="false" />
-        <activity
-            android:name=".data.Department"
-            android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -78,10 +29,35 @@
             android:theme="@style/Theme.SmartCampus">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".util.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".util.AlarmService"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="false" />
+
+        <receiver
+            android:name=".util.AlarmReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".util.AlarmDismissReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="ACTION_DISMISS_ALARM" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
